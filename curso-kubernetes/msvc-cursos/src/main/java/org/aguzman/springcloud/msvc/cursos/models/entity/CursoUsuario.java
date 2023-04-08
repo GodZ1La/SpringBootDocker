@@ -1,4 +1,4 @@
-package org.aguzman.springcloud.msvc.usuarios.models.entity;
+package org.aguzman.springcloud.msvc.cursos.models.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +20,9 @@ public class CursoUsuario {
         if(this == obj){
             return true;
         }
-        if(!(obj instanceof CursoUsuario)){
+        if(!(obj instanceof CursoUsuario objeto)){
             return false;
         }
-        CursoUsuario objeto = (CursoUsuario) obj;
         return this.usuarioId != null && this.usuarioId.equals(objeto.usuarioId);
     }
 }

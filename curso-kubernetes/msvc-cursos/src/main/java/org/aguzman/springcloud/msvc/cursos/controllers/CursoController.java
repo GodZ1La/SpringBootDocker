@@ -1,6 +1,8 @@
 package org.aguzman.springcloud.msvc.cursos.controllers;
 
-import org.aguzman.springcloud.msvc.cursos.entity.Curso;
+import feign.FeignException;
+import org.aguzman.springcloud.msvc.cursos.models.Usuario;
+import org.aguzman.springcloud.msvc.cursos.models.entity.Curso;
 import org.aguzman.springcloud.msvc.cursos.services.CursoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,10 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class CursoController {
@@ -69,10 +68,49 @@ public class CursoController {
         }
         return ResponseEntity.notFound().build();
     }
+    @PutMapping("/asignar-usuario/{cursoId}")
+    public ResponseEntity asignarUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId){
+        Optional<Usuario> optional;
+        try{
+            optional = service.asignarUsuario(usuario, cursoId);
+        }catch (FeignException e){
+            return new ResponseEntity(Collections.singletonMap("mensaje", "No existe el usuario por el Id" +
+                    " o error en la comunicacion" + e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+        return getResponseEntity(optional);
+    }
+
+    @PostMapping("/crear-usuario/{cursoId}")
+    public ResponseEntity crearUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId){
+        Optional<Usuario> optional;
+        try{
+            optional = service.crearUsuario(usuario, cursoId);
+        }catch (FeignException e){
+            return new ResponseEntity(Collections.singletonMap("mensaje", "No se pudo crear el usuario" +
+                    " o error en la comunicacion" + e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+        return getResponseEntity(optional);
+    }
+
+    @PutMapping("/eliminar-usuario/{cursoId}")
+    public ResponseEntity eliminarUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId){
+        Optional<Usuario> optional;
+        try{
+            optional = service.eliminarUsuario(usuario, cursoId);
+        }catch (FeignException e){
+            return new ResponseEntity(Collections.singletonMap("mensaje", "No existe el usuario por el Id" +
+                    " o error en la comunicacion" + e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+        return getResponseEntity(optional);
+    }
     private static ResponseEntity<Object>validar(BindingResult resultado) {
         Map<String, String> errores = new HashMap<>();
         resultado.getFieldErrors().forEach(err -> errores.put(err.getField(),
                 "El campo " + err.getField() + " " +err.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errores);
+    }
+
+    private static ResponseEntity getResponseEntity(Optional<Usuario> optional) {
+        return optional.map(usuario -> new ResponseEntity(usuario, HttpStatus.CREATED)).orElseGet(() -> new ResponseEntity(HttpStatus.NOT_FOUND));
     }
 }
