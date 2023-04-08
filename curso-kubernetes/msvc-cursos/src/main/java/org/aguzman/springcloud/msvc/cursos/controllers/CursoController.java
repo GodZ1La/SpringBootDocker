@@ -28,12 +28,11 @@ public class CursoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> detalle(@PathVariable Long id) {
-        Optional<Curso> optional = service.porId(id);
+        Optional<Curso> optional = service.porIdConUsuarios(id); //service.porId(id);
         if (optional.isPresent()) {
-            return ResponseEntity.ok(optional.get());
-            //return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(optional.get(),HttpStatus.OK);
         }
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/")
@@ -111,6 +110,7 @@ public class CursoController {
     }
 
     private static ResponseEntity getResponseEntity(Optional<Usuario> optional) {
-        return optional.map(usuario -> new ResponseEntity(usuario, HttpStatus.CREATED)).orElseGet(() -> new ResponseEntity(HttpStatus.NOT_FOUND));
+        return optional.map(usuario -> new ResponseEntity(usuario, HttpStatus.CREATED))
+                .orElseGet(() -> new ResponseEntity(HttpStatus.NOT_FOUND));
     }
 }
